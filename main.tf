@@ -72,19 +72,30 @@ resource "azurerm_virtual_machine" "vm" {
     disable_password_authentication = false
   }
 
-  custom_data = <<-EOF
-                #!/bin/bash
-                apt-get update
-                apt-get install -y docker.io
-                systemctl start docker
-                systemctl enable docker
-                docker run -d -p 80:80 --name wordpress --restart unless-stopped -e WORDPRESS_DB_HOST=localhost -e WORDPRESS_DB_USER=wordpress -e WORDPRESS_DB_PASSWORD=wordpress -e WORDPRESS_DB_NAME=wordpress wordpress
-                EOF
-
   tags = {
     environment = "Terraform"
   }
 }
+
+resource "azurerm_virtual_machine_extension" "custom_script" {
+  name                 = "install-docker"
+  virtual_machine_id   = azurerm_virtual_machine.vm.id
+  publisher            = "Microsoft.Azure.Extensions"
+  type                 = "CustomScript"
+  type_handler_version = "2.0"
+
+  settings = <<SETTINGS
+    {
+        "fileUris": ["https://raw.githubusercontent.com/<your-username>/<your-repo-name>/main/install_docker.sh"],
+        "commandToExecute": "./install_docker.sh"
+    }
+  SETTINGS
+}
+
+output "public_ip_address" {
+  value = azurerm_public_ip.public_ip.ip_address
+}
+
 
 output "public_ip_address" {
   value = azurerm_public_ip.public_ip.ip_address

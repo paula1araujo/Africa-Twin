@@ -86,7 +86,8 @@ resource "azurerm_virtual_machine_extension" "custom_script" {
 
   settings = <<SETTINGS
     {
-        "fileUris": ["https://raw.githubusercontent.com/<paula1araujo>/<africa-twin>/main/install_docker.sh"],
+        "fileUris": ["
+https://github.com/paula1araujo/Africa-Twin/blob/main/install_docker.sh"],
         "commandToExecute": "./install_docker.sh"
     }
   SETTINGS
